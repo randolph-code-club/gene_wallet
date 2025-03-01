@@ -5,19 +5,21 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 
 # Generate key pair
-kemalg = "ML-KEM-512"
-with oqs.KeyEncapsulation(kemalg) as client:
-    with oqs.KeyEncapsulation(kemalg) as server:
-        print(f"Key encapsulation details:\n{pformat(client.details)}")
+def create_key():
+    kemalg = "ML-KEM-512"
+    with oqs.KeyEncapsulation(kemalg) as client:
+        with oqs.KeyEncapsulation(kemalg) as server:
+            print(f"Key encapsulation details:\n{pformat(client.details)}")
 
-        # Client generates its keypair
-        public_key_client = client.generate_keypair()
+            # Client generates its keypair
+            public_key_client = client.generate_keypair()
 
-        # Simulate key exchange (normally, this is done between two parties)
-        encapsulated_key, shared_secret = server.encap_secret(public_key_client)
+            # Simulate key exchange (normally, this is done between two parties)
+            encapsulated_key, shared_secret = server.encap_secret(public_key_client)
 
-        # Derive an AES-256 key from the shared secret
-        aes_key = shared_secret[:32]  # Use first 32 bytes for AES-256
+            # Derive an AES-256 key from the shared secret
+            aes_key = shared_secret[:32]  # Use first 32 bytes for AES-256
+    return aes_key
 
 # AES-GCM encryption
 def encrypt_file(input_file, output_file, key):
@@ -56,10 +58,12 @@ def decrypt_file(input_file, output_file, key):
     with open(output_file, "wb") as f:
         f.write(plaintext)
 
-# Encrypt a file
-encrypt_file("plain.txt", "encrypted.bin", aes_key)
+if __name__ == '__main__':
 
-# Decrypt the file
-decrypt_file("encrypted.bin", "decrypted.txt", aes_key)
+    # Encrypt a file
+    encrypt_file("plain.txt", "encrypted.bin", aes_key)
 
-print("Decryption complete. Check 'decrypted.txt'.")
+    # Decrypt the file
+    decrypt_file("encrypted.bin", "decrypted.txt", aes_key)
+
+    print("Decryption complete. Check 'decrypted.txt'.")
