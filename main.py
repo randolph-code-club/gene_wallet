@@ -1,4 +1,5 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 from tkinter import filedialog
 import crypto
 import wallet
@@ -13,6 +14,7 @@ def clear():
     created_wallet_label.pack_forget()
     wallet_is_created_label.pack_forget()
     add_to_wallet_button.pack_forget()
+    file_list_frame.pack_forget()
 
 def upload_file():
     file_path = filedialog.askopenfilename(title="Select a File", filetypes=[("Text Files", "*.txt")])
@@ -20,11 +22,23 @@ def upload_file():
 
 def add_file_to_wallet():
     file_path = upload_file()
-    key = wallet.read_from_wallet("aes_key.bin")
+    key = wallet.read_key_from_wallet("aes_key.bin")
     ciphertext = crypto.encrypt_file(file_path, key)
-    wallet.add_to_wallet("encrypted.bin", ciphertext)
 
-# Function to be executed when the button is clicked
+    wallet.add_to_wallet(f"{Path(file_path).stem}.bin", ciphertext)
+    refresh_file_list()
+
+def refresh_file_list():
+    # file_list_frame.destroy()
+    # file_list_frame = tk.Frame(root, width=100)
+    for label in file_list_frame.winfo_children():
+        label.destroy()  # Destroys each widget inside the frame
+    for file in wallet.list_wallet():
+        file_list_label = tk.Label(file_list_frame, text=Path(file).name, font=("Arial", 12))
+        file_list_label.pack()
+    file_list_frame.pack()
+
+# Functions to be executed when the button is clicked
 def on_button1_click():
     clear()
     label1.pack()
@@ -32,7 +46,6 @@ def on_button1_click():
 def on_button2_click():
     clear()
     label2.pack()
-    add_to_wallet_button.pack()
 
 def on_button3_click():
     clear()
@@ -40,12 +53,15 @@ def on_button3_click():
     home_dir = Path.home()
     wallet_path = home_dir / ".gene_wallet"
     if wallet_path.exists() and wallet_path.is_dir():
-        wallet_is_created_label.pack()
+        wallet_is_created_label.pack(pady=10)
     else:
         aes_key = crypto.create_key()
         wallet.init_wallet()
-        wallet.add_to_wallet("aes_key.bin", aes_key)
-        created_wallet_label.pack()
+        wallet.add_key_to_wallet("aes_key.bin", aes_key)
+        created_wallet_label.pack(pady=10)
+    add_to_wallet_button.pack()
+    file_list_frame.pack()
+    refresh_file_list()
 
 def on_button4_click():
     clear()
@@ -61,14 +77,21 @@ root.geometry(f"{screen_width}x{screen_height}+0+0")
 window_height = root.winfo_height()
 left_frame = tk.Frame(root, width=100)
 left_frame.pack(side="left", fill="y")
-title =  tk.Label(root, text="GeneWallet", font=("Arial", 30))
+title = tk.Label(root, text="GeneWallet", font=("Arial", 30))
 title.pack()
 
 # Create buttons
-button1 = tk.Button(left_frame, text="Home", command=on_button1_click, font=("Arial", 12), width=20, height=3)
-button2 = tk.Button(left_frame, text="Send/Receive", command=on_button2_click, font=("Arial", 12), width=20, height=3)
-button3 = tk.Button(left_frame, text="Manage Wallet", command=on_button3_click, font=("Arial", 12), width=20, height=3)
-button4 = tk.Button(left_frame, text="Settings", command=on_button4_click, font=("Arial", 12), width=20, height=3)
+home_icon = tk.PhotoImage(file="home.png")
+send_icon = tk.PhotoImage(file="email.png")
+wallet_icon = tk.PhotoImage(file="wallet.png")
+settings_icon = tk.PhotoImage(file="settings.png")
+# home_image = Image.open("button_image.png")  # Supports JPG, PNG, etc.
+# home_image = home_image.resize((100, 50))  # Resize to (width, height)
+# home_photo = ImageTk.PhotoImage(home_image)
+button1 = tk.Button(left_frame, image=home_icon, command=on_button1_click, font=("Arial", 12), width=250, height=3)
+button2 = tk.Button(left_frame, image=send_icon, command=on_button2_click, font=("Arial", 12), width=20, height=3)
+button3 = tk.Button(left_frame, image=wallet_icon, command=on_button3_click, font=("Arial", 12), width=20, height=3)
+button4 = tk.Button(left_frame, image=settings_icon, command=on_button4_click, font=("Arial", 12), width=20, height=3)
 button1.pack(expand=True, fill="y")
 button2.pack(expand=True, fill="y")
 button3.pack(expand=True, fill="y")
@@ -84,6 +107,7 @@ label4 = tk.Label(root, text="Settings", font=("Arial", 16))
 
 # Create encrypt button
 add_to_wallet_button = tk.Button(root, text="Add File to Wallet", command=add_file_to_wallet)
+file_list_frame = tk.Frame(root, width=100)
 
 # label 3
 created_wallet_label = tk.Label(root, text="Created Wallet", font=("Arial", 12))
