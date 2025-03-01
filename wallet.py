@@ -15,5 +15,6 @@ def add_to_wallet(name, content):
 		f.write(content)
 
 def read_from_wallet(name):
-	with open(name, "rb") as f:
+	new_path = get_wallet_path() / name
+	with open(new_path, "rb") as f:
 		return f.read()

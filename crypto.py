@@ -22,7 +22,7 @@ def create_key():
     return aes_key
 
 # AES-GCM encryption
-def encrypt_file(input_file, output_file, key):
+def encrypt_file(input_file, key):
     iv = os.urandom(12)  # Generate a random IV
     encryptor = Cipher(
         algorithms.AES(key),
@@ -34,9 +34,11 @@ def encrypt_file(input_file, output_file, key):
         plaintext = f.read()
     
     ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+
+    return ciphertext
     
-    with open(output_file, "wb") as f:
-        f.write(iv + encryptor.tag + ciphertext)  # Store IV, tag, and ciphertext
+    # with open(output_file, "wb") as f:
+    #     f.write(iv + encryptor.tag + ciphertext)  # Store IV, tag, and ciphertext
 
 # AES-GCM decryption
 def decrypt_file(input_file, output_file, key):
