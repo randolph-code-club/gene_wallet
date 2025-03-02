@@ -5,6 +5,8 @@ import crypto
 import wallet
 from pathlib import Path
 
+selected_email = "haha"
+
 grid_count = 0
 
 def clear():
@@ -12,6 +14,19 @@ def clear():
     frame2.pack_forget()
     frame3.pack_forget()
     frame4.pack_forget()
+    frame_send.pack_forget()
+
+def on_send_button_click(email):
+    clear()
+    global selected_email
+    selected_email = email
+    frame_send.pack()
+    tk.Label(frame_send, text=f"You are sending your files to {selected_email}. This is dangerous.", font=("Arial", 12)).pack()
+    usb_drive_button.pack(side="left")
+    keybase_button.pack(side="right")
+
+def send_all():
+    tk.Label(frame_send, text=f"Sent all files to {selected_email}", font=("Arial", 12)).pack()
 
 def upload_file():
     file_path = filedialog.askopenfilename(title="Select a File", filetypes=[("Text Files", "*.txt")])
@@ -24,19 +39,13 @@ def update_emails():
     wallet.write_emails(email)
     email_frame = tk.Frame(frame2, width=100)
     email_label = tk.Label(email_frame, text=email, font=("Arial", 12), anchor="w", width=30)
-    email_send_button = tk.Button(email_frame, text="Send", command=update_emails)
+    email_send_button = tk.Button(email_frame, text="Send", command=lambda: on_send_button_click(email))
     email_receive_button = tk.Button(email_frame, text="Receive", command=update_emails)
-    # email_label.pack(side="left")
-    # email_send_button.pack(side="left")
-    # email_receive_button.pack(side="right")
-    email_label.grid_columnconfigure(1, weight=1)  # Allow buttons to expand
+    email_label.grid_columnconfigure(1, weight=1)
     email_label.grid_columnconfigure(2, weight=1)
     email_label.grid(row=grid_count, column=0, sticky="w")
     email_send_button.grid(row=grid_count, column=1, sticky="ew")
     email_receive_button.grid(row=grid_count, column=2, sticky="ew")
-    # email_frame.grid_columnconfigure(1, weight=1)
-    # email_frame.grid_columnconfigure(2, weight=1)
-    # email_frame.grid_rowconfigure(grid_count, weight=1)
     grid_count += 1
     email_frame.pack()
 
@@ -106,6 +115,7 @@ frame1 = tk.Frame(root, width=100)
 frame2 = tk.Frame(root, width=100)
 frame3 = tk.Frame(root, width=100)
 frame4 = tk.Frame(root, width=100)
+frame_send = tk.Frame(root, width=100)
 
 # Create buttons
 home_image = Image.open("icons/home.png")
@@ -135,16 +145,20 @@ label2 = tk.Label(frame2, text="Send/Receive", font=("Arial", 16))
 label3 = tk.Label(frame3, text="Manage Wallet", font=("Arial", 16))
 label4 = tk.Label(frame4, text="Settings", font=("Arial", 16))
 
-# label 2 vars
+# frame2 vars
 send_receive_frame = tk.Frame(frame2, width=100)
 add_emails_button = tk.Button(send_receive_frame, text="Add Emails", command=update_emails)
 add_emails_text_box = tk.Entry(send_receive_frame, width=30)
 
-# label 3 vars
+# frame3 vars
 created_wallet_label = tk.Label(frame3, text="Created Wallet", font=("Arial", 12))
 wallet_is_created_label = tk.Label(frame3, text="Wallet is already created.", font=("Arial", 12))
 add_to_wallet_button = tk.Button(frame3, text="Add File to Wallet", command=add_file_to_wallet)
 file_list_frame = tk.Frame(frame3, width=100)
+
+# frame_send vars
+usb_drive_button = tk.Button(frame_send, text="USB Drive", command=send_all)
+keybase_button = tk.Button(frame_send, text="Keybase.io", command=send_all)
 
 on_button1_click()
 
