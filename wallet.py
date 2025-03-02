@@ -35,3 +35,11 @@ def list_wallet():
 	files_path = get_wallet_path() / "files"
 	files = [file.name for file in files_path.iterdir() if file.is_file()]
 	return files
+
+def write_emails(email):
+	file_path = get_wallet_path() / "contacts.txt"
+	if file_path.exists():
+		with open(file_path, "a") as f:
+			f.write(email + "\n")
+	else:
+		file_path.write_text(email + "\n")
