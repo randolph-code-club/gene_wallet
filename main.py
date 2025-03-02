@@ -4,11 +4,11 @@ from tkinter import filedialog
 import crypto
 import wallet
 from pathlib import Path
+import socket
 
 selected_email = "haha"
 
 grid_count = 0
-
 def clear():
     frame1.pack_forget()
     frame2.pack_forget()
@@ -69,6 +69,8 @@ def on_button1_click():
     clear()
     frame1.pack()
     label1.pack()
+    IPlabel.pack()
+    Dirlabel.pack()
 
 def on_button2_click():
     clear()
@@ -139,7 +141,18 @@ button2.pack(expand=True, fill="y")
 button3.pack(expand=True, fill="y")
 button4.pack(expand=True, fill="y")
 
+# label 1 vars
+
+# Create a socket and connect to an external server
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("8.8.8.8", 80))
+IPAddr = s.getsockname()[0]
+s.close()
+IPlabel = tk.Label(frame1, text=IPAddr, font=("Arial", 16))
+Dirlabel = tk.Label(frame1, text=(wallet.get_wallet_path()), font=("Arial",16))
+
 # Create temp labels
+
 label1 = tk.Label(frame1, text="Home", font=("Arial", 16))
 label2 = tk.Label(frame2, text="Send/Receive", font=("Arial", 16))
 label3 = tk.Label(frame3, text="Manage Wallet", font=("Arial", 16))
